@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@100;200;300;400;500;600;700;800;900&display=swap')
+
+$gap: 15px;
+
+html
+    font-family: 'Heebo', sans-serif
+    font-size: 16px
+    word-spacing: 1px
+    -ms-text-size-adjust: 100%
+    -webkit-text-size-adjust: 100%
+    -moz-osx-font-smoothing: grayscale
+    -webkit-font-smoothing: antialiased
+    box-sizing: border-box
+
+*,
+*::before,
+*::after
+    box-sizing: border-box
+    margin: 0
+
+h1, h2, h3
+    color: #333
+    margin: 0
+
+a
+    -webkit-tap-highlight-color: rgba(0,0,0,0)
+    -webkit-tap-highlight-color: transparent
+    
+button
+    font-family: 'Heebo', sans-serif
+    font-size: 16px
+    outline: none
+.centered
+    display: flex
+    justify-content: center
+    align-items: center
+label
+    font-weight: bold
+    margin-bottom: 5px
+.form-control
+    margin-top: 5px
+    padding: 10px 15px
+    transition: 300ms
+    border: 1px solid #ddd
+    border-radius: 5px
+    outline: none
+    font-size: 15px
+    font-family: 'Heebo', sans-serif
+    &:focus
+        border: 1px solid #2980b9
+
+.container
+    height: 100%
+    width: 100%
+    top: 0
+    left: 0
+    position: fixed
+    background-color: #fafafa
+
+.content
+    height: 100%
+    overflow-y: scroll
+    padding-bottom: 60px
+
+
+.text-center
+    text-align: center
+
+.text-danger
+    color: #c70039
+
+.text-muted
+    color: #666
+.text-warning
+    color: #fa7d09
+.text-sm
+    font-size: 14px
+
+.content-header
+    padding-left: 20px
+    padding-right: 20px
+    padding-top: 30px !important
+    h1, h2, h3
+        color: #000
+        line-height: 30px
+
+.progress
+    width: 100%
+    height: 10px
+    background-color: #ddd
+    margin-top: 10px
+    border-radius: 5px;
+    overflow: hidden
+    position: relative
+
+    .progress-value
+        position: absolute
+        height: 10px
+        background-color: green
+        width: 0%
+        transition: 300ms
+.ripple
+  background-position: center
+  transition: background 0.8s
+
+  &:hover
+      background-color: rgba(0,0 ,0 ,0.1 )
+
+  &:active
+    background-color: rgba(0,0 ,0 ,0.1 )
+    background-size: 100%
+    transition: background 0s
+
+.back-button
+    position: fixed
+    bottom: 80px
+    display: block
+    padding: 10px
+    background-color: #eee
+    width: 60px
+    text-align: center
+    font-size: 24px
+    text-decoration: none
+    border-radius: 50px
+    color: #000
+    left: 50%
+    transform: translateX(-50%)
+
+@for $var from 1 through 3
+    .p#{$var}
+        padding: $gap*$var
+    .ph#{$var}
+        padding-left: $gap*$var
+        padding-right: $gap*$var
+    .pv#{$var}
+        padding-top: $gap*$var
+        padding-bottom: $gap*$var
+
+    .mt#{$var}
+        margin-top: $gap*$var
+     
