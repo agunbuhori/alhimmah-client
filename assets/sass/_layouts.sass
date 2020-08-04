@@ -1,0 +1,46 @@
+@import 'dimensions'
+
+.header-height
+    height: $header-height
+.navbar-height
+    height: $navbar-height
+
+.centered
+    display: flex
+    justify-content: center
+    align-items: center
+
+.centered-column
+    display: flex
+    justify-content: center
+    align-items: center
+    flex-direction: column
+
+.full-width
+    width: 100%
+    display: block
+    clear: both
+
+.container
+    height: 100%
+    width: 100%
+    max-width: 700px
+    left: 50%
+    position: fixed
+    background-color: #f2f3f4
+    transform: translateX(-50%)
+
+.content
+    height: 100%
+    overflow-y: scroll
+    padding-bottom: $navbar-height
+    padding-top: $header-height
+    &.no-header
+        padding-top: 0 !important
+    &.no-navbar
+        padding-bottom: 0 !important
+    &.with-tab
+        padding-top: $header-height+40px
+
+.not-found
+    height: 100%

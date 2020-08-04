@@ -1,0 +1,42 @@
+@import 'colors';
+
+button
+    outline: none
+.btn
+    font-weight: 600;
+    line-height: 48px;
+    position: relative;
+    display: inline-block;
+    min-width: 120px;
+    height: 48px;
+    padding: 0 1rem;
+    text-align: center!important;
+    white-space: nowrap;
+    text-decoration: none;
+    text-transform: none;
+    color: #fff;
+    border: none!important;
+    border-radius: 6px!important;
+    font-size: 16px
+    box-shadow: inset 0 0 0 1px rgba(50,50,93,.1), 0 2px 5px 0 rgba(50,50,93,.1), 0 1px 1px 0 rgba(0,0,0,.07)
+
+    &-block
+        display: block !important
+        width: 100%
+
+    &-small
+        height: 30px
+        line-height: 30px
+        font-size: 14px
+
+$colors: ("primary": $primary, "success": $success, "warning": $warning, "danger": $danger)
+
+@each $name, $color in $colors
+    .btn-#{$name}
+        background-color: $color
+        color: white
+        &:hover, &:active
+            background-color: darken($color, 5)
+            color: white
+        &:disabled
+            opacity: 0.6

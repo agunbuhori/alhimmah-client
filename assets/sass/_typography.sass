@@ -1,0 +1,31 @@
+@import 'colors'
+
+h1, h2, h3, h4, h5, h6
+    font-weight: bold
+    margin: 0
+
+label
+    font-weight: 500
+
+a, a:active, a:focus
+    color: black
+    text-decoration: none
+
+a
+    -webkit-tap-highlight-color: rgba(0,0,0,0)
+    -webkit-tap-highlight-color: transparent
+    
+
+.text-center
+    text-align: center
+
+.text-small
+    font-size: 13px
+
+.text-muted
+    color: #888
+
+$colors: ("primary": $primary, "success": $success, "warning": $warning, "danger": $danger)
+@each $name, $color in $colors
+    .text-#{$name}
+        color: $color

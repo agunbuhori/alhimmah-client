@@ -1,37 +1,38 @@
 <template lang="pug">
-  .wrapper.centered
-    .login-form.ph2
-      
+  .wrapper.centered-column
+    .login-form.full-width.ph-2
+      .text-center
+        img.logo(src="/logo-circle.png")
       .form-group
         label Email atau username
         input.form-control(type="text" placeholder="Masukkan email atau username" v-model="email")
         
       .form-group
         label Kata sandi
-        input.form-control(type="password" placeholder="Masukkan password" v-model="password")
+        input.form-control(type="password" placeholder="Masukkan kata sandi" v-model="password")
       
       .form-group(v-if="loginFailed")
         p.text-center.text-danger Login gagal
 
       .form-group
-        button.login-button(@click="login()" :disabled="! email || ! password") Masuk
+        button.btn.btn-primary.btn-block(@click="login()" :disabled="! email || ! password") {{ progress ? "Memuat..." : "Masuk" }}
 
       .form-group
-        p.text-center.text-muted Atau masuk dengan
-    .social.ph2
-        button#google.social-button Google
-        button#facebook.social-button(@click="loginWithFacebook()") Facebook
+        p.text-center.text-muted atau masuk dengan
+
+      .social
+          button#google.social-button Google
+          button#facebook.social-button(@click="loginWithFacebook()") Facebook
 </template>
 
 <script>
 export default {
-  middleware: "guest",
   data() {
     return {
       name: "User",
       email: "",
       password: "",
-      loading: false,
+      progress: false,
       loginFailed: false
     };
   },
@@ -49,6 +50,7 @@ export default {
       });
     },
     async changeAuth(user) {
+      // return false;
       try {
         const { id, email, name, social, avatar, password } = user;
         let response = await this.$auth.loginWith('local', {
@@ -61,16 +63,16 @@ export default {
             social
           }
         });
-
         if (response.status === 200) {
-          this.$auth.setUserToken(response.data.access_token);
-          this.$auth.setUser(response.data.user);
+          await this.$auth.setUserToken(response.data.access_token);
+          await this.$auth.setUser(response.data.user);
         }
       } catch (error) {
         console.log(error);
         this.loginFailed = true;
         this.password = "";
       }
+      this.progress =false;
     },
     startGoogleApi() {
       const _vn = this;
@@ -80,6 +82,7 @@ export default {
           {},
           function(googleUser) {
             let auth = googleUser.getBasicProfile();
+            _vn.progress = true;
             _vn.changeAuth({
               id: auth.getId(),
               name: auth.getName(),
@@ -140,6 +143,7 @@ export default {
           if (response.authResponse) {
             FB.api('/me', {fields: 'id,name,email,picture'}, function(response) {
               const { id, name, email, picture } = response;
+              _vn.progress = true;
               _vn.changeAuth({
                 id, name, email, avatar: picture.data.url, social: "facebook"
               });
@@ -158,26 +162,10 @@ export default {
   left: 0
   width: 100%
   height: 100%
-  display: flex
-  flex-direction: column
 
-.login-form
-  width: 100%
-.form-group
-  margin-bottom: 15px
-  width: 100%
-  
-  input
-    display: block
-    width: 100%
-
-.login-button
-  width: 100%
-  padding: 10px
-  border-radius: 5px
-  border: none
-  color: white
-  background-color: #2980b9
+.logo
+  width: 150px
+  margin-bottom: 20px
 
 .social
   display: flex
@@ -185,7 +173,6 @@ export default {
   flex-direction: row
   width: 100%
   
-
   button
     border-radius: 50px
     border: none
@@ -198,7 +185,7 @@ export default {
     align-items: center
     position: relative
     padding-left: 30px
-    background-color: #eee
+    background-color: #ddd
 
     &::before
       content: ""
@@ -210,7 +197,7 @@ export default {
       background-size: 60%
       background-repeat: no-repeat
     &:hover
-      background-color: #ccc 
+      background-color: darken(#eee, 4)
 
   #google::before
     background-image: url('/social/google.png')

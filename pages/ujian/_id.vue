@@ -1,33 +1,44 @@
 <template lang="pug">
     .content
-        .p2(v-if="! matery.quiz_started")
-            h2 Ujian Harian {{ titleCase(matery.course.title + " : " + matery.title) }}
+        .p-2(v-if="! matery.quiz_started")
+            .text-center
+              img(src="/no-quiz.svg" width="150px")
+            h3.text-center Ujian Harian {{ titleCase(matery.course.title + " - " + matery.title) }}
+            h3.text-center.text-warning(v-if="$moment().format('YYYY-MM-DD') < $moment(matery.quiz_enabled).format('YYYY-MM-DD')") Ujian Ini Aktif Besok
             .pv1
-                h3.text-muted Catatan :
+                strong.text-muted Catatan :
                 ol
-                    li Jumlah {{ matery.quizzes_count }} soal dan waktu pengerjaan {{ getMinute() }}.
+                    li Jumlah {{ matery.quizzes_count }} soal dan waktu pengerjaan 
+                      strong {{ getMinute() }}.
                     li Pastikan handphone / komputer memiliki koneksi yang bagus dan baterai yang cukup.
                     li
                         strong Dilarang mencontek atau melihat jawaban dari buku, internet, dll. &nbsp;
                         | Allah maha melihat.
-            button.blue(@click="startQuiz()") Bismillah, Mulai
+                    li Jika yakin dengan semua jawaban
+                      strong &nbsp; silakan tekan selesai
+                      | &nbsp; karena waktu termasuk penilaian.
+            .text-center
+              button.btn.btn-primary(@click="startQuiz()") {{ $moment().format('YYYY-MM-DD') < $moment(matery.quiz_enabled).format('YYYY-MM-DD') ? "Kembali" : "Bismillah, Mulai" }}
         .quiz(v-else-if="quizzes")
-            .quiz-header
-                .back
-                .time
-                    span {{ matery.quiz_ended !== null ? "Selesai" : time }}
-                .menu
             .progress-quiz
                     .progress-value(:style="{width: (progress/duration)*100 + '%' }")
-            .quiz-content.p2
+            .quiz-header
+                //- .back
+                .time
+                    span {{ matery.quiz_ended !== null ? (duration - matery.quiz_ended) + 's' : time }}
+                .menu
+                    span {{ matery.quiz_ended !== null ? matery.quiz_score : Object.keys(answers).length +"/"+ quizzes.length }}
+            .quiz-content.p-2
                 .question(v-for="(quiz, $index) in quizzes")
-                    .question-content(v-html="($index+1)+'. '+quiz.question")
+                    .question-content(v-html="quiz.question")
                     label.choice(v-for="(answer, $choiceIndex) in quiz.answer" :class="{selected: answers && answers[quiz.id] === $choiceIndex}")
                         .answer-button
                             input(:disabled="matery.quiz_ended !== null" :name="'choice'+quiz.id" type="radio" @click="selectChoice($index, $choiceIndex, $event)" :checked="answers && answers[quiz.id] === $choiceIndex")
                         .answer-item
                             span {{ answer }}
-                button.green(@click="endQuiz()") Selesai
+                p.text-muted.text-center.mb1(v-if="matery.quiz_ended === null") Jika sudah yakin dengan jawaban, silakan tekan selesaikan.
+                button.btn.btn-success.btn-block(v-if="matery.quiz_ended === null" @click="endQuiz()") Bismillah, Selesaikan
+                nuxt-link.btn.btn-primary.btn-block(to="/ujian" v-if="matery.quiz_ended !== null" @click="endQuiz()") Kembali
 
         a.back-button(@click="$router.go(-1)" v-if="! quizzes")
             span.ti-arrow-left
@@ -35,16 +46,19 @@
 
 <script>
 export default {
+  middleware: 'auth',
   async asyncData({ $axios, route }) {
     const matery = await $axios.$get("quiz/" + route.params.id);
-    let duration = matery.quiz_paused;
-    let reducedDuration = duration;
+    let duration = matery.quiz_duration;
+    let paused = matery.quiz_paused;
+    let reducedDuration = paused;
     let answers = {};
+    let progress = matery.quiz_duration - matery.quiz_paused;
 
     if (matery.quiz_answers)
       answers = JSON.parse(matery.quiz_answers);
 
-    return { matery, duration, reducedDuration, answers };
+    return { matery, duration, reducedDuration, answers, progress, paused };
   },
   data() {
     return {
@@ -53,7 +67,6 @@ export default {
       finish: false,
       quizzes: [],
       question: {},
-      progress: 0,
       questionIndex: 0,
       interval: null
     };
@@ -61,6 +74,7 @@ export default {
   mounted() {
     if (this.matery.quiz_started && this.matery.quiz_ended === null) this.renderTime();
 
+    if (this.matery.quiz_started)
     this.getQuizzes();
 
   },
@@ -79,9 +93,11 @@ export default {
     },
 
     startQuiz() {
-      this.renderTime();
-       
-       if (! this.matery.quiz_started) {
+      if (this.$moment().format('YYYY-MM-DD') < this.$moment(this.matery.quiz_enabled).format('YYYY-MM-DD'))
+        this.$router.go(-1);
+
+      else if (! this.matery.quiz_started) {
+          this.renderTime();
           this.$axios.$put("start_quiz/" + this.matery.secret).then(response => {
             if (response.quiz_started) {
               this.matery.quiz_started = response.quiz_started;
@@ -119,6 +135,7 @@ export default {
       event.target.parentNode.parentNode.classList.add('selected');
 
       this.answers[this.quizzes[questionIndex].id] = choiceIndex;
+      this.saveDuration();
     },
 
     async saveDuration(end = false) {
@@ -128,14 +145,13 @@ export default {
         end: end
       }).then(response => {
         this.matery.quiz_ended = response.quiz_ended;
+        this.matery.quiz_score = response.quiz_score;
       });
     },  
 
     renderTime() {
-      this.duration++;
-
-      let minute = this.duration <= 60 ? 0 : Math.ceil(this.duration / 60) - 1;
-      let second = this.duration <= 60 ? this.duration : this.duration - Math.ceil(minute * 60);
+      let minute = this.paused <= 60 ? 0 : Math.ceil(this.paused / 60) - 1;
+      let second = this.paused <= 60 ? this.paused : this.paused - Math.ceil(minute * 60);
       
       this.interval = setInterval(() => {
         second--;
@@ -169,8 +185,8 @@ export default {
     },
 
     getMinute() {
-      let minute = this.duration <= 60 ? 0 : Math.round(this.duration / 60) - 1;
-      let second = this.duration <= 60 ? this.duration : this.duration - Math.round(minute * 60);
+      let minute = this.paused <= 60 ? 0 : Math.round(this.paused / 60) - 1;
+      let second = this.paused <= 60 ? this.paused : this.paused - Math.round(minute * 60);
 
       if (minute === 0) return second + " detik";
       else if (minute > 0 && second == 0) return minute + " menit";
@@ -187,67 +203,53 @@ $progressHeight: 5px
     background-color: white
 ol
     padding: 15px
-    font-weight: 500;
+    font-weight: 400;
 .quiz-header
-    height: 60px
+    height: 40px
     background-color: #333
     display: grid
-    grid-template-columns: 60px 1fr 60px
+    grid-template-columns: 1fr 1fr
     position: fixed
     width: 100%
-    top: $progressHeight
+    top: 0
     left: 0
 
     .time
+      border-right: 1px solid #ddd
+    .time, .menu
         display: flex
         justify-content: center
         align-items: center
         span
             font-weight: bold
-            font-size: 25px
+            font-size: 20px
             color: white
 .quiz
-    margin-top: 68px
 .question
-    font-size: 18px
+    font-size: 16px
     margin-bottom: 20px
     padding-bottom: 20px
     border-bottom: 1px solid #ddd
-.green
-    width: 100%
-    padding: 10px 15px
-    border-radius: 20px
-    border: none
-    color: white
-    background-color: #3ca59d
-.blue
-  width: 100%
-  padding: 10px 15px
-  border-radius: 20px
-  border: none
-  color: white
-  background-color: #2980b9
-
-  &:disabled
-    opacity: 0.3
-
-  &:active
-    background-color: #1980a9
+    overflow-x: hidden
+  
 .quiz-button
     display: flex
     justify-content: space-between
+
+.mb1
+  margin-bottom: 10px
 
 .progress-quiz
     height: $progressHeight
     background-color: #ddd
     width: 100%
     position: fixed
-    top: 0
+    top: 40px
     .progress-value
         position: absolute
         top: 0
         height: $progressHeight
-        background-color: #2980b9
+        background-color: #1976d2
         transition: width 300ms
 .question-content
     margin-bottom: 15px
@@ -260,9 +262,6 @@ ol
         align-items: flex-start
     &.selected
       background-color: #d1ecf1
-      margin-left: -5px
-      margin-right: -5px
-      padding-left: 5px
       border-radius: 5px
       transition: background 300ms
 </style>

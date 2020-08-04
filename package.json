@@ -1,5 +1,5 @@
 {
-  "name": "alhimmah",
+  "name": "madinah.id",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -15,9 +15,14 @@
     "@nuxtjs/auth": "^4.9.1",
     "@nuxtjs/axios": "^5.11.0",
     "@nuxtjs/pwa": "^3.0.0-beta.20",
+    "luxon": "^1.24.1",
     "nuxt": "^2.13.0",
     "pusher-js": "^6.0.3",
-    "vuex": "^3.4.0"
+    "v-owl-carousel": "^1.0.8",
+    "vue-datetime": "^1.0.0-beta.13",
+    "vue-phone-number-input": "^1.1.9",
+    "vuex": "^3.4.0",
+    "weekstart": "^1.0.1"
   },
   "devDependencies": {
     "@nuxtjs/laravel-echo": "^1.1.0",

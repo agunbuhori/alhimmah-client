@@ -1,27 +1,54 @@
 <template lang="pug">
     .content
-        header.content-header
-            span.text-muted {{ $moment().format('dddd, DD MMMM YYYY') }}
-            h2 Ujian
-        main.quizzes(v-if="quizzes.length")
-            nuxt-link.quiz(v-for="(quiz, $index) in quizzes" :to="'/ujian/'+quiz.secret" :key="$index") 
+        .nav-tabs
+                a(@click.prevent="filterFetch(false)" :class="{active: !hasEnded}") Belum Dikerjakan
+                a(@click.prevent="filterFetch(true)" :class="{active: hasEnded}") Sudah Dikerjakan
+        main.quizzes.cards.p1(v-if="quizzes.length")
+            
+            nuxt-link.card(v-for="(quiz, $index) in quizzes" :to="'/ujian/'+quiz.secret" :key="$index") 
                 .detail
-                    h3 {{ titleCase(quiz.matery.course.title) }} : {{ titleCase(quiz.matery.title) }}
-                    span.text-muted Ujian Harian • {{ JSON.parse(quiz.quiz_questions).length }} Soal
-                        span.text-warning(v-if="$moment().format('YYYY-MM-DD') < $moment(quiz.quiz_enabled).format('YYYY-MM-DD')") &nbsp;• Besok
-                .score(v-if="quiz.quiz_score")
-                    span.text-muted Nilai
-                    h3 90
-        .no-quiz.text-center.p2(v-else)
-            h4.text-muted Tidak ada ujian hari ini
+                    h4 {{ $string.title(quiz.matery.course.title) }} - {{ $string.title(quiz.matery.title) }}
+                    span.text-muted.text-small Ujian Harian • {{ JSON.parse(quiz.quiz_questions).length }} Soal
+                    //- span.text-success.ti-pencil(v-if="quiz.quiz_score") &nbsp;
+                    //- span.text-success(v-if="quiz.quiz_score") Sudah Dikerjakan
+                    span.text-warning.text-small(v-if="! quiz.quiz_score && $moment().format('YYYY-MM-DD') < $moment(quiz.quiz_enabled).format('YYYY-MM-DD')") &nbsp;• Aktif Besok
+                    br
+                    .result.text-center.text-success.text-small(v-if="quiz.quiz_score") 
+                        span.ti-pencil
+                        | &nbsp; {{ quiz.quiz_score }} &nbsp;
+                        
+                        span.ti-alarm-clock
+                        | &nbsp; {{ quiz.quiz_duration - quiz.quiz_ended }}s &nbsp;
+
+                        
+                        span.ti-medall
+                        | &nbsp; {{ getPredicate(quiz.quiz_score) }}
+
+
+
+                //- .score(v-if="quiz.quiz_score")
+                //-     span.text-muted Nilai
+                //-     h4
+                //-         span.ti-alarm-clock
+                //-         | {{ quiz.quiz_duration - quiz.quiz_ended }}s
+                //-     h4 {{ quiz.quiz_score }}
+        .not-found.centered-column.p-2(v-else)
+            img.placeholder(src="/quiz.svg")
+            h2.text-muted Tidak Ada Ujian
 </template>
 
 <script>
 import CourseLoading from '~/components/Loading/CourseLoading';
 export default {
+    middleware: 'member',
     async asyncData({ $axios }) {
-        const quizzes = await $axios.$get('quizzes');
+        const quizzes = await $axios.$get('quizzes?ended=false');
         return { quizzes }
+    },
+    data() {
+        return {
+            hasEnded: false
+        }
     },
     components: {
         CourseLoading
@@ -32,45 +59,63 @@ export default {
         }
     },
     methods: {
-        titleCase(str) {
-            let result = str.toLowerCase().replace(/\b[a-z]/g, function(letter) {
-                return letter.toUpperCase();
+        async filterFetch(status) {
+            this.hasEnded = status;
+            this.$nuxt.$loading.start();
+            await this.$axios.$get('quizzes', {
+                params: {
+                    ended: this.hasEnded
+                }
+            })
+            .then(response => {
+                this.quizzes = response;
+                this.$nuxt.$loading.finish()
             });
-
-            return result;
         },
-        getWidth(current, total) {
-            let percentage = (current/total)*100 + '%';
+        getPredicate(score) {
+            score = Math.round(score);
 
-            return percentage;
+            if (score == 100) {
+                return "Mumtaz Murtafi";
+            } else if (score > 90) {
+                return "Mumtaz";
+            } else if (score > 80) {
+                return "Jayyid Jiddan";
+            } else if (score > 70) {
+                return "Jayyid";
+            } else if (score > 50) {
+                return "Makbul";
+            } else if (score > 1) {
+                return "Rasib";
+            } else {
+                return "Ghayib";
+            }
         }
     }
 }
 </script>
 
 <style lang="sass" scoped>
+@import "~/assets/sass/_dimensions"
 
 .quizzes
-    padding: 20px
+    padding-top: $header-height
     a.quiz
         display: grid
-        grid-template-columns: 1fr 60px
+        grid-template-columns: 1fr
         text-decoration: none
-        width: 100%
-        padding: 15px 20px
-        margin-bottom: 15px
-
-        border-radius: 10px
-        box-shadow: 0px 5px 60px -10px rgba(0, 0, 0, 0.2)
-        background-color: #fff
-
         .score
             display: flex
             justify-content: center
             align-items: flex-end
             flex-direction: column
+            border-left: 1px solid #ddd
             .text-muted
                 font-size: 14px
-            h3
+            h4
                 color: #333
+.result
+    border-top: 1px solid #eee
+    padding-top: 10px
+    margin-top: 5px
 </style>

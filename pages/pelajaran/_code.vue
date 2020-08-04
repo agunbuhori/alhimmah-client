@@ -1,23 +1,15 @@
 <template lang="pug">
     .content
-        header.content-header
-            .back-button-top
-                a(@click="$router.go(-1)")
-                    span.ti-arrow-circle-left
-            .header-content
-                span.text-muted Mata Pelajaran
-                h2 {{ titleCase(course.title) }}
-        main.materies
+        .materies
             .matery-list
                 nuxt-link.matery(v-for="(matery, $index) in course.materies" :to="'/stream/'+matery.secret" :key="$index") 
                     .number.centered 
                         span {{ $index+1 }}
                     .detail
-                        strong {{ matery.title }}
-                        br
-                        span.text-muted.text-sm(v-if="matery.video_url") Video, {{ matery.duration }} menit
-                        span.text-muted.text-sm(v-else-if="matery.audio_url") Audio, {{ matery.duration }} menit
-                        span.text-muted.text-sm(v-else="matery.article_url") Artikel
+                        h4 {{ matery.title }}
+                        span.text-muted.text-small(v-if="matery.video_url") Video, {{ matery.duration }} menit
+                        span.text-muted.text-small(v-else-if="matery.audio_url") Audio, {{ matery.duration }} menit
+                        span.text-muted.text-small(v-else="matery.article_url") Artikel
                     .button.centered
                         button.centered(:class="{success: matery.member_materies_count}")
                             span.ti-book(v-if="matery.member_materies_count")
@@ -27,9 +19,10 @@
 
 <script>
 export default {
-    transition: 'page',
-    async asyncData({ $axios, route }) {
+    middleware: 'auth',
+    async asyncData({ $axios, store, route }) {
         const course = await $axios.$get('materies?course_code='+route.params.code);
+        store.commit('setHeader', {title: course.title, backButton: true});
         return { course }
     },
 
@@ -57,11 +50,8 @@ export default {
                 font-size: 25pt
                 color: #888
 .materies
-    padding: 20px
     .matery-list
-        border-radius: 10px
-        box-shadow: 0px 5px 60px -10px rgba(0, 0, 0, 0.2)
-        background-color: #fff
+        background-color: white
         .matery
             border-bottom: 1px solid #eee
             display: grid
@@ -72,7 +62,7 @@ export default {
             .number
                 border-right: 1px solid #eee
                 span
-                    font-size: 16pt
+                    font-size: 16pxs
                     font-weight: bold
                     color: #888
             .detail

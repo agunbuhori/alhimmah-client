@@ -1,5 +1,7 @@
-export default function({ $auth, redirect }) {  
-    if (! $auth.loggedIn) {
+export default async function({ $auth, redirect }) {  
+  let user = await $auth.user;
+
+  if (! $auth.loggedIn) {
       window.location.href = '/login';
     }
 }

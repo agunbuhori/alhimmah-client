@@ -1,4 +1,4 @@
-# alhimmah
+# madinah.id
 
 ## Build Setup
 

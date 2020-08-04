@@ -14,8 +14,8 @@ export default {
                 {label: "Home", icon: "home", path: "/"},
                 {label: "Pelajaran", icon: "agenda", path: "/pelajaran"},
                 {label: "Ujian", icon: "ruler-pencil", path: "/ujian"},
-                {label: "Nilai", icon: "bar-chart-alt", path: "/nilai"},
-                {label: "Akun", icon: "user", path: "/akun"},
+                {label: "Peringkat", icon: "bar-chart-alt", path: "/peringkat"},
+                {label: "Profil", icon: "user", path: "/profil"},
             ]
         }
     },
@@ -28,7 +28,8 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-$navHeight: 55px
+@import "~/assets/sass/_dimensions"
+@import "~/assets/sass/_colors"
 .bottom-nav
     position: fixed
     bottom: 0
@@ -37,9 +38,11 @@ $navHeight: 55px
     display: flex
     justify-content: space-around
     align-items: center
-    height: $navHeight
-    background-color: #f1f1f1
+    height: $navbar-height
+    background-color: #fafafa
+    border-top: 1px solid #ddd
     transition: bottom 300ms
+    z-index: 999
 
     a
         text-decoration: none
@@ -47,7 +50,7 @@ $navHeight: 55px
         flex-direction: column
         justify-content: center
         align-items: center
-        color: #333
+        color: #666
 
         span[class^='ti']
             font-size: 14pt
@@ -57,9 +60,9 @@ $navHeight: 55px
             font-weight: bold
 
         &.active
-            color: purple
+            color: $primary
 
 .hidden
-    bottom: -$navHeight
+    bottom: -$navbar-height
 
 </style>

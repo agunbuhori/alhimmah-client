@@ -1,0 +1,26 @@
+@import 'colors';
+
+.form-group
+    display: block
+    width: 100%
+    clear: both
+    @extend .mb-2
+
+    input
+        display: block
+
+    .form-control
+        width: 100%    
+select, input, .form-control
+    margin-top: 5px;
+    padding: 10px 15px;
+    transition: border 0.3s;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+    background-color: white
+    font-size: 15px;
+    font-family: 'Heebo', sans-serif;
+
+    &:focus
+        border-color: $primary

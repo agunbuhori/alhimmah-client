@@ -1,6 +1,7 @@
 <template>
   <div>
     <div class="container">
+      <Header/>
       <Nuxt />
       <BottomNav/>
     </div>
@@ -8,9 +9,11 @@
 </template>
 
 <script>
+import Header from '~/components/Header';
 import BottomNav from '~/components/BottomNav';
 export default {
   components: {
+    Header,
     BottomNav
   }
 }

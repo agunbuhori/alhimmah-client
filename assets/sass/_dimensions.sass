@@ -1,0 +1,43 @@
+$gap: 10px
+$header-height: 50px
+$navbar-height: 60px
+
+.no-padding
+    padding: 0
+.no-margin
+    margin: 0
+
+@for $i from 1 through 4
+    .p-#{$i}
+        padding: $gap*$i
+    .pv-#{$i}
+        padding-top: $gap*$i
+        padding-bottom: $gap*$i
+    .ph-#{$i}
+        padding-left: $gap*$i
+        padding-right: $gap*$i
+    .pt-#{$i}
+        padding-top: $gap*$i
+    .pb-#{$i}
+        padding-bottom: $gap*$i
+    .pl-#{$i}
+        padding-left: $gap*$i
+    .pr-#{$i}
+        padding-right: $gap*$i
+
+    .m-#{$i}
+        margin: $gap*$i
+    .mv-#{$i}
+        margin-top: $gap*$i
+        margin-bottom: $gap*$i
+    .mh-#{$i}
+        margin-left: $gap*$i
+        margin-right: $gap*$i
+    .mt-#{$i}
+        margin-top: $gap*$i
+    .mb-#{$i}
+        margin-bottom: $gap*$i
+    .ml-#{$i}
+        margin-left: $gap*$i
+    .mr-#{$i}
+        margin-right: $gap*$i
